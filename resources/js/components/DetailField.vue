@@ -38,7 +38,6 @@ export default {
                     if(this.downloadPercentage < 100) {
                         this.isDownloading = true;
                     }
-                    console.log(this.downloadPercentage);
                 }
             })
             .then((response) => {
