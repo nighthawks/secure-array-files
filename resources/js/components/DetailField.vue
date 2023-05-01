@@ -10,6 +10,10 @@
                 </svg>
                 <span>{{ file.originalName }}</span>
             </button>
+
+            <div v-if="isDownloading" class="progress-bar">
+                <div class="bar" :style="{ width: downloadPercentage + '%' }"><span>{{ downloadPercentage }}%</span></div>
+            </div>
         </div>
     </panel-item>
 </template>
@@ -17,15 +21,27 @@
 <script>
 export default {
     props: ['resource', 'resourceName', 'resourceId', 'field'],
-
+    data() {
+        return {
+            downloadPercentage: 0,
+            isDownloading: false
+        }
+    },
     methods: {
         getFile (file, originalName) {
             axios({
                 url: '/nova-vendor/secure-array-files/download' + file,
                 method: 'GET',
                 responseType: 'blob',
+                onDownloadProgress: (progressEvent) => {
+                    this.downloadPercentage = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    if(this.downloadPercentage < 100) {
+                        this.isDownloading = true;
+                    }
+                    console.log(this.downloadPercentage);
+                }
             })
-                .then((response) => {
+            .then((response) => {
                 const url = window.URL.createObjectURL(new Blob([response.data]));
                 const link = document.createElement('a');
                 link.href = url;
